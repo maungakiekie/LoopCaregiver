@@ -6,22 +6,20 @@
 //
 
 import Intents
+import LoopCaregiverKit
 
 class IntentHandler: INExtension {
-    
     var accountServiceManager: AccountServiceManager {
-        let composer = ServiceComposer()
-        return AccountServiceManager(accountService: composer.accountServiceManager)
+        let composer = ServiceComposerProduction()
+        return AccountServiceManager(accountService: composer.accountServiceManager, settings: composer.settings)
     }
-    
+
     override func handler(for intent: INIntent) -> Any {
         return self
     }
-    
 }
 
 extension IntentHandler: ConfigurationIntentHandling {
-     
     func defaultLooper(for intent: ConfigurationIntent) -> SelectedLooper? {
         guard let selectedLooper = accountServiceManager.selectedLooper else {
             return nil
@@ -31,7 +29,7 @@ extension IntentHandler: ConfigurationIntentHandling {
     }
 
     func provideLooperOptionsCollection(for intent: ConfigurationIntent) async throws -> INObjectCollection<SelectedLooper> {
-        let loopers = try accountServiceManager.getLoopers().sorted(by: {$0.name.caseInsensitiveCompare($1.name) == .orderedAscending})
-        return INObjectCollection(items: loopers.map({.init(identifier: $0.id, display: $0.name)}))
+        let loopers = try accountServiceManager.getLoopers().sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedAscending })
+        return INObjectCollection(items: loopers.map({ .init(identifier: $0.id, display: $0.name) }))
     }
 }

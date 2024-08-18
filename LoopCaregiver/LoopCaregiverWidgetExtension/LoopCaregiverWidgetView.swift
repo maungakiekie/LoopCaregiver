@@ -6,82 +6,64 @@
 //
 
 import Foundation
+import LoopCaregiverKit
+import LoopCaregiverKitUI
+import NightscoutKit
 import SwiftUI
 
-struct LoopCaregiverWidgetView : View {
-    
+struct LoopCaregiverWidgetView: View {
     @ObservedObject var settings: CaregiverSettings
-    var entry: SimpleEntry
-    @Environment(\.widgetFamily) var family
+    var entry: GlucoseTimeLineEntry
+    @Environment(\.widgetFamily)
+    var family
     
-    init(entry: SimpleEntry, settings: CaregiverSettings){
+    init(entry: GlucoseTimeLineEntry, settings: CaregiverSettings) {
         self.entry = entry
         self.settings = settings
     }
     
-    var widgetURL: URL {
-        if let looper = entry.looper {
-            let deepLink = SelectLooperDeepLink(looperUUID: looper.id)
-            return URL(string: deepLink.toURL())!
-        } else {
-            let deepLink = SelectLooperDeepLink(looperUUID: "")
-            return URL(string: deepLink.toURL())!
-        }
-
-    }
-
     var body: some View {
-        Group {
-            if settings.appGroupsSupported {
+        VStack {
+            switch entry {
+            case .success(let glucoseValue):
                 switch family {
+                case .accessoryRectangular:
+                    LatestGlucoseRectangularView(glucoseValue: glucoseValue)
                 case .accessoryCircular:
-                    if let latestGlucoseSample = entry.currentGlucoseSample {
-                        LatestGlucoseView(timelineEntryDate: entry.date, latestGlucose: latestGlucoseSample, lastGlucoseChange: entry.lastGlucoseChange, settings: settings, isLastEntry: entry.isLastEntry)
-                    } else {
-                        emptyLatestGlucoseView
-                    }
+                    LatestGlucoseCircularView(glucoseValue: glucoseValue)
+                case .accessoryInline:
+                    LatestGlucoseInlineView(glucoseValue: glucoseValue)
+                case .systemLarge:
+                    LargeWidgetView(glucoseValue: glucoseValue)
                 default:
-                    defaultView
+                    Text(glucoseValue.looper.name)
+                    LatestGlucoseSquareView(glucoseValue: glucoseValue)
                 }
-            } else {
+            case .failure(let error):
                 switch family {
+                case .accessoryRectangular:
+                    Text(error.localizedDescription)
+                        .font(.footnote)
+                    Text(entry.date.description)
+                        .font(.footnote)
                 case .accessoryCircular:
-                   Text("AppGroups?")
+                    emptyLatestGlucoseView
                 default:
-                    Text("Widgets require App Groups via Xcode Builds.")
+                    Text(error.localizedDescription)
+                        .font(.footnote)
+                    Text(entry.date.description)
+                        .font(.footnote)
                 }
             }
         }
         .widgetBackground(backgroundView: backgroundView)
-        .widgetURL(widgetURL)
+        .widgetURL(entry.selectLooperDeepLink().url)
     }
     
     var emptyLatestGlucoseView: some View {
         VStack {
             Text("---")
             Text("---")
-        }
-    }
-    
-    var defaultView: some View {
-        VStack {
-            if let looper = entry.looper {
-                Text(looper.name)
-                    .font(.headline)
-            }
-            if let latestGlucoseSample = entry.currentGlucoseSample {
-                LatestGlucoseView(timelineEntryDate: entry.date, latestGlucose: latestGlucoseSample, lastGlucoseChange: entry.lastGlucoseChange, settings: settings, isLastEntry: entry.isLastEntry)
-            } else {
-                emptyLatestGlucoseView
-            }
-//            if experimentalFeaturesUnlocked {
-//                if let lastGlucoseDate = entry.currentGlucoseSample?.date {
-//                    Text(timeFormat.string(from: lastGlucoseDate))
-//                        .font(.footnote)
-//                }
-//                Text("\(timeFormat.string(from: entry.date)) (\(entry.entryIndex))")
-//                    .font(.footnote)
-//            }
         }
     }
     
@@ -97,7 +79,7 @@ struct LoopCaregiverWidgetView : View {
 }
 
 extension View {
-    //Remove this when iOS 17 is minimum required
+    // Remove this when iOS 17 is minimum required
     func widgetBackground(backgroundView: some View) -> some View {
         if #available(iOSApplicationExtension 17.0, *) {
             return containerBackground(for: .widget) {

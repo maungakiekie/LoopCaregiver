@@ -5,81 +5,94 @@
 //  Created by Bill Gestrich on 10/27/23.
 //
 
-import WidgetKit
+import HealthKit
+import LoopCaregiverKit
+import LoopCaregiverKitUI
+import LoopKit
 import SwiftUI
-
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
-    }
-
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
-    }
-
-    func recommendations() -> [AppIntentRecommendation<ConfigurationAppIntent>] {
-        // Create an array with all the preconfigured widgets to show.
-        [AppIntentRecommendation(intent: ConfigurationAppIntent(), description: "Loop Caregiver Widget")]
-    }
-}
-
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let configuration: ConfigurationAppIntent
-}
-
-struct LoopCaregiverWatchAppExtensionEntryView : View {
-    var entry: Provider.Entry
-
-    var body: some View {
-        VStack {
-            HStack {
-                Text("Time:")
-                Text(entry.date, style: .time)
-            }
-        
-            Text("Caregiver Watch App:")
-            Text(entry.configuration.favoriteEmoji)
-        }
-    }
-}
+import WidgetKit
 
 @main
 struct LoopCaregiverWatchAppExtension: Widget {
     let kind: String = "LoopCaregiverWatchAppExtension"
-
+    let provider = TimelineWatchProvider()
+    
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
-            LoopCaregiverWatchAppExtensionEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: provider) { entry in
+            Group {
+                switch entry {
+                case .success(let glucoseValue):
+                    WidgetView(glucoseValue: glucoseValue)
+                case .failure(let error):
+                    WidgetErrorView(error: error)
+                }
+            }
+            .widgetURL(entry.selectLooperDeepLink().url)
+            .containerBackground(.fill.tertiary, for: .widget)
         }
     }
 }
 
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
+struct WidgetView: View {
+    var glucoseValue: GlucoseTimelineValue
+    @Environment(\.widgetFamily)
+    var family
+    
+    @ViewBuilder var body: some View {
+        switch family {
+        case .accessoryInline:
+            LatestGlucoseRowView(glucoseValue: glucoseValue)
+        case .accessoryCircular:
+            LatestGlucoseCircularView(glucoseValue: glucoseValue)
+        case .accessoryRectangular:
+            LatestGlucoseRectangularView(glucoseValue: glucoseValue)
+        default:
+            LatestGlucoseCircularView(glucoseValue: glucoseValue)
+        }
     }
+}
+
+struct WidgetErrorView: View {
+    var error: GlucoseTimeLineEntryError
+    @Environment(\.widgetFamily)
+    var family
+    
+    @ViewBuilder var body: some View {
+        switch family {
+        case .accessoryInline:
+            Text(error.localizedDescription)
+        case .accessoryCircular:
+            Text("?")
+        case .accessoryRectangular:
+            Text(error.localizedDescription)
+        default:
+            Text(error.localizedDescription)
+        }
+    }
+}
+
+// TODO: These won't build when LoopCaregiverWidget_Previews, in another target/file is enabled.
+
+#Preview(as: .accessoryCorner) {
+    LoopCaregiverWatchAppExtension()
+} timeline: {
+    GlucoseTimeLineEntry.previewsEntry()
+}
+
+#Preview(as: .accessoryCircular) {
+    LoopCaregiverWatchAppExtension()
+} timeline: {
+    GlucoseTimeLineEntry.previewsEntry()
 }
 
 #Preview(as: .accessoryRectangular) {
     LoopCaregiverWatchAppExtension()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-}    
+    GlucoseTimeLineEntry.previewsEntry()
+}
+
+#Preview(as: .accessoryInline) {
+    LoopCaregiverWatchAppExtension()
+} timeline: {
+    GlucoseTimeLineEntry.previewsEntry()
+}

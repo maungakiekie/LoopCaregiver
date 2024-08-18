@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mattrubin/Base32.git",
       "state" : {
-        "branch" : "1.1.2+spm",
-        "revision" : "d185e44c8b355d34d5c6c6ad502c60cba4599f69"
+        "revision" : "6389546e8e9a34a9d9db452726900383f3e4ac57",
+        "version" : "1.2.0"
       }
     },
     {
@@ -14,8 +14,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/twostraws/CodeScanner",
       "state" : {
-        "revision" : "4b2f9c57d03bfe94e6b45572e0c908c1433c32b2",
-        "version" : "2.3.2"
+        "revision" : "944a6a1ca030dbd890e647a678e718fc2115d35c",
+        "version" : "2.4.1"
+      }
+    },
+    {
+      "identity" : "loopkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LoopKit/LoopKit.git",
+      "state" : {
+        "branch" : "dev",
+        "revision" : "2f535b3ca46825e82e0dd1b5ef9daccd53a3f0ca"
       }
     },
     {
@@ -32,13 +41,14 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mattrubin/OneTimePassword.git",
       "state" : {
-        "revision" : "8e4022f2852d77240d0a17482cbfe325354aac70"
+        "branch" : "develop",
+        "revision" : "66f284e22c170ffcc2c9dcf055a1efeb260c766d"
       }
     },
     {
       "identity" : "swiftcharts",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ivanschuetz/SwiftCharts.git",
+      "location" : "https://github.com/ivanschuetz/SwiftCharts",
       "state" : {
         "branch" : "master",
         "revision" : "c354c1945bb35a1f01b665b22474f6db28cba4a2"

@@ -6,13 +6,12 @@
 //
 
 import HealthKit
-import SwiftUI
+import LoopCaregiverKit
 import LoopKit
 import LoopKitUI
-
+import SwiftUI
 
 struct COBChartView: UIViewRepresentable {
-    
     @ObservedObject var remoteDataSource: RemoteDataServiceManager
     @ObservedObject var settings: CaregiverSettings
     @StateObject var viewModel = COBContainerViewModel()
@@ -42,7 +41,7 @@ struct COBChartView: UIViewRepresentable {
         viewModel.chartManager.startDate = dateInterval.start
         viewModel.chartManager.maxEndDate = dateInterval.end
         viewModel.chartManager.updateEndDate(dateInterval.end)
-        let cobValues = remoteDataSource.carbEntries.map({CarbValue(startDate: $0.timestamp, value: Double($0.carbs))})
+        let cobValues = remoteDataSource.carbEntries.map({ CarbValue(startDate: $0.timestamp, value: Double($0.carbs)) })
         cobChart.setCOBValues(cobValues)
         /*
          This will probably need to do something as done in:
@@ -72,7 +71,8 @@ struct COBChartView: UIViewRepresentable {
             self.parent = parent
         }
 
-        @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
+        @objc
+        func handlePan(_ recognizer: UIPanGestureRecognizer) {
             switch recognizer.state {
             case .began:
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -81,7 +81,9 @@ struct COBChartView: UIViewRepresentable {
             case .cancelled, .ended, .failed:
                 // Workaround: applying the delay on the animation directly does not delay the disappearance of the touch indicator.
                 // FIXME: No animation is applied to the disappearance of the touch indicator; it simply disappears.
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+                DispatchQueue.main.asyncAfter(
+                    deadline: .now() + .seconds(1)
+                ) { [weak self] in
                     withAnimation(.easeInOut(duration: 0.5)) {
                         self?.parent.isInteractingWithChart = false
                     }
@@ -96,6 +98,11 @@ struct COBChartView: UIViewRepresentable {
 class COBContainerViewModel: ObservableObject {
     let chartManager: ChartsManager = {
         let doseChart = COBChart()
-        return ChartsManager(colors: .primary, settings: .default, charts: [doseChart], traitCollection: UITraitCollection())
+        return ChartsManager(
+            colors: .primary,
+            settings: .default,
+            charts: [doseChart],
+            traitCollection: UITraitCollection()
+        )
     }()
 }

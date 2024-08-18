@@ -1,0 +1,50 @@
+{
+  "pins" : [
+    {
+      "identity" : "base32",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mattrubin/Base32.git",
+      "state" : {
+        "revision" : "6389546e8e9a34a9d9db452726900383f3e4ac57",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "loopkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LoopKit/LoopKit.git",
+      "state" : {
+        "branch" : "dev",
+        "revision" : "d31a8c2eb5e001901f51dd3bf323097470beb6b5"
+      }
+    },
+    {
+      "identity" : "nightscoutkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gestrich/NightscoutKit.git",
+      "state" : {
+        "branch" : "feature/2023-07/bg/remote-commands",
+        "revision" : "d63fb7370522f0dd441cd790aa960e991e118cda"
+      }
+    },
+    {
+      "identity" : "onetimepassword",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mattrubin/OneTimePassword.git",
+      "state" : {
+        "branch" : "develop",
+        "revision" : "66f284e22c170ffcc2c9dcf055a1efeb260c766d"
+      }
+    },
+    {
+      "identity" : "swiftcharts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ivanschuetz/SwiftCharts",
+      "state" : {
+        "branch" : "master",
+        "revision" : "c354c1945bb35a1f01b665b22474f6db28cba4a2"
+      }
+    }
+  ],
+  "version" : 2
+}

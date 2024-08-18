@@ -8,11 +8,10 @@
 import SwiftUI
 
 extension Color {
-    
     static var cellBackgroundColor: Color {
         return Color(UIColor.secondarySystemBackground)
     }
-    
+
     static var critical: Color {
         return Color(uiColor: .red)
     }

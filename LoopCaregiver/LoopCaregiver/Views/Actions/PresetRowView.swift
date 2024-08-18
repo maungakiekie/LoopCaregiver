@@ -9,15 +9,14 @@ import NightscoutKit
 import SwiftUI
 
 struct PresetRowView: View {
-    
     let preset: TemporaryScheduleOverride
     var scheduleTapBlock: (() -> Void)
-    
+
     var body: some View {
         HStack {
             Text(preset.symbol ?? "")
                 .font(.largeTitle)
-            VStack (alignment: .leading) {
+            VStack(alignment: .leading) {
                 Text(preset.name ?? "")
                 if let targetDescription = preset.targetRangePresentableDescription() {
                     Text(targetDescription)
@@ -34,11 +33,12 @@ struct PresetRowView: View {
             }
         }
     }
-    
+
     var durationView: some View {
-        HStack (spacing: 2) {
+        HStack(spacing: 2) {
             Image(systemName: "timer")
                 .labelStyle(.titleAndIcon)
+                .accessibilityLabel(Text("duration"))
             Text(preset.presentedHourAndMinutes)
         }.font(.caption)
     }

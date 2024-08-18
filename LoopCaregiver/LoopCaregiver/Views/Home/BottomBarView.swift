@@ -6,20 +6,20 @@
 //
 
 import Foundation
-
+import LoopCaregiverKit
 import SwiftUI
 
 struct BottomBarView: View {
-
     @Binding var showCarbView: Bool
     @Binding var showBolusView: Bool
     @Binding var showOverrideView: Bool
     @Binding var showSettingsView: Bool
     @ObservedObject var remoteDataSource: RemoteDataServiceManager
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme)
+    var colorScheme
     
     var body: some View {
-        HStack (alignment: .center) {
+        HStack(alignment: .center) {
             Button {
                 showCarbView = true
             } label: {
@@ -28,6 +28,7 @@ struct BottomBarView: View {
                     .foregroundColor(.green)
                     .frame(width: iconSize(), height: iconSize())
                     .padding(.leading)
+                    .accessibilityLabel(Text("Carbs"))
             }
             Spacer()
             Button {
@@ -37,6 +38,7 @@ struct BottomBarView: View {
                     .renderingMode(.template)
                     .foregroundColor(.orange)
                     .frame(width: iconSize(), height: iconSize())
+                    .accessibilityLabel(Text("Bolus"))
             }
             Spacer()
             Button {
@@ -46,6 +48,7 @@ struct BottomBarView: View {
                     .renderingMode(.template)
                     .foregroundColor(.blue)
                     .frame(width: iconSize(), height: iconSize())
+                    .accessibilityLabel(Text("Workout"))
             }
             Spacer()
             Button {
@@ -56,6 +59,7 @@ struct BottomBarView: View {
                     .foregroundColor(.gray)
                     .frame(width: iconSize(), height: iconSize())
                     .padding(.trailing)
+                    .accessibilityLabel(Text("Settings"))
             }
         }
         .background(barBackgroundColor)

@@ -3,17 +3,15 @@
 //  Loop
 //
 //  Created by Michael Pangburn on 7/22/20.
-//  Copyright © 2020 LoopKit Authors. All rights reserved.
 //
 
 import HealthKit
-import SwiftUI
+import LoopCaregiverKit
 import LoopKit
 import LoopKitUI
-
+import SwiftUI
 
 struct PredictedGlucoseChartView: UIViewRepresentable {
-    
     @ObservedObject var remoteDataSource: RemoteDataServiceManager
     @ObservedObject var settings: CaregiverSettings
     @StateObject var viewModel = PredictedGlucoseContainerViewModel()
@@ -54,7 +52,8 @@ struct PredictedGlucoseChartView: UIViewRepresentable {
     }
 
     var predictedGlucoseChart: PredictedGlucoseChart {
-        guard viewModel.chartManager.charts.count == 1, let predictedGlucoseChart = viewModel.chartManager.charts.first as? PredictedGlucoseChart else {
+        guard viewModel.chartManager.charts.count == 1,
+                let predictedGlucoseChart = viewModel.chartManager.charts.first as? PredictedGlucoseChart else {
             fatalError("Expected exactly one predicted glucose chart in ChartsManager")
         }
 
@@ -72,7 +71,8 @@ struct PredictedGlucoseChartView: UIViewRepresentable {
             self.parent = parent
         }
 
-        @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
+        @objc
+        func handlePan(_ recognizer: UIPanGestureRecognizer) {
             switch recognizer.state {
             case .began:
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -96,6 +96,11 @@ struct PredictedGlucoseChartView: UIViewRepresentable {
 class PredictedGlucoseContainerViewModel: ObservableObject {
     let chartManager: ChartsManager = {
         let predictedGlucoseChart = PredictedGlucoseChart()
-        return ChartsManager(colors: .primary, settings: .default, charts: [predictedGlucoseChart], traitCollection: UITraitCollection())
+        return ChartsManager(
+            colors: .primary,
+            settings: .default,
+            charts: [predictedGlucoseChart],
+            traitCollection: UITraitCollection()
+        )
     }()
 }
