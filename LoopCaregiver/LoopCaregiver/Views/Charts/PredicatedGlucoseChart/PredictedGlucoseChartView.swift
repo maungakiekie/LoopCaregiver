@@ -41,7 +41,7 @@ struct PredictedGlucoseChartView: UIViewRepresentable {
         viewModel.chartManager.startDate = dateInterval.start
         viewModel.chartManager.maxEndDate = dateInterval.end
         viewModel.chartManager.updateEndDate(dateInterval.end)
-        predictedGlucoseChart.glucoseUnit = settings.glucoseDisplayUnits
+        predictedGlucoseChart.glucoseUnit = settings.glucosePreference.unit
         predictedGlucoseChart.targetGlucoseSchedule = targetGlucoseSchedule
         predictedGlucoseChart.preMealOverride = preMealOverride
         predictedGlucoseChart.scheduleOverride = scheduleOverride

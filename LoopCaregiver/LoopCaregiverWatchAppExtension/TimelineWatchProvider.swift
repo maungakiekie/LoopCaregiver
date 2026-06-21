@@ -8,14 +8,19 @@
 import Foundation
 import LoopCaregiverKit
 import LoopKit
+import OSLog
 import SwiftUI
 import WidgetKit
 
 class TimelineWatchProvider: AppIntentTimelineProvider {
     let providerShared = TimelineProviderShared()
+    private let defaultLog = Logger()
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<GlucoseTimeLineEntry> {
-        return await providerShared.timeline(for: configuration.looperID, looperName: configuration.name)
+        defaultLog.log("timeline requested")
+        let timeline = await providerShared.timeline(for: configuration.looperID, looperName: configuration.name)
+        defaultLog.log("timeline returned")
+        return timeline
     }
     
     /// Shows the first time widget appears on watchface and when redacted

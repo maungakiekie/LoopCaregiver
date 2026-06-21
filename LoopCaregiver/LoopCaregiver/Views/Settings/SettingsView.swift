@@ -84,11 +84,11 @@ struct SettingsView: View {
             }
         }
         .onAppear {
-            self.glucosePreference = settings.glucoseUnitPreference
+            self.glucosePreference = settings.glucosePreference
         }
         .onChange(of: glucosePreference, perform: { _ in
-            if settings.glucoseUnitPreference != glucosePreference {
-                settings.saveGlucoseUnitPreference(glucosePreference)
+            if settings.glucosePreference != glucosePreference {
+                settings.glucosePreference = glucosePreference
             }
         })
         .confirmationDialog("Are you sure?",

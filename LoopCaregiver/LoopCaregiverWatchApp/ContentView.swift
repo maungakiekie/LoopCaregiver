@@ -24,7 +24,6 @@ struct ContentView: View {
     @State private var path = NavigationPath()
 
     var body: some View {
-        let _ = Self._printChanges()
         NavigationStack(path: $path) {
             VStack {
                 if let looperService = accountService.selectedLooperService {

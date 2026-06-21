@@ -108,7 +108,7 @@ struct ChartsListView: View {
             return ""
         }
         
-        return "Eventually \(eventualGlucose.presentableStringValue(displayUnits: settings.glucoseDisplayUnits, includeShortUnits: true))"
+        return "Eventually \(eventualGlucose.presentableStringValue(displayUnits: settings.glucosePreference.unit, includeShortUnits: true))"
     }
     
     func formattedInsulinDelivery() -> String {

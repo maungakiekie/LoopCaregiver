@@ -83,7 +83,7 @@ public struct TimelineProviderShared {
             throw TimelineProviderError.missingGlucose
         }
         let treatmentData = CaregiverTreatmentData(
-            glucoseDisplayUnits: composer.settings.glucoseDisplayUnits,
+            glucoseDisplayUnits: composer.settings.glucosePreference.unit,
             glucoseSamples: sortedSamples,
             predictedGlucose: remoteServiceManager.predictedGlucose,
             bolusEntries: remoteServiceManager.bolusEntries,
@@ -110,7 +110,7 @@ public struct TimelineProviderShared {
             if context.isPreview {
                 let fakeGlucoseSample = NewGlucoseSample.previews()
                 let treatmentData = CaregiverTreatmentData(
-                    glucoseDisplayUnits: composer.settings.glucoseDisplayUnits,
+                    glucoseDisplayUnits: composer.settings.glucosePreference.unit,
                     glucoseSamples: [],
                     predictedGlucose: [],
                     bolusEntries: [],
@@ -173,7 +173,7 @@ public struct TimelineProviderShared {
             case .notReady:
                 return "The widget is not ready to display. Wait a few minutes and try again."
             case .missingGlucose:
-                return "Missing glucose"
+                return "Missing glucose. \(Date().formatted(date: .omitted, time: .shortened))"
             }
         }
         

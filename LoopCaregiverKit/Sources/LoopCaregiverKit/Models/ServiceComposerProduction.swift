@@ -6,14 +6,17 @@
 //
 
 import Foundation
+import OSLog
 
 public class ServiceComposerProduction: ServiceComposer {
     public let settings: CaregiverSettings
     public let accountServiceManager: AccountServiceManager
     public let watchService: WatchService
     public let deepLinkHandler: DeepLinkHandler
+    private let defaultLog = Logger()
 
     public init() {
+        defaultLog.log("Initializing ServiceComposerProduction for bundle: \(Bundle.main.bundlePath)")
         let userDefaults = Self.createUserDefaults()
         self.settings = Self.createCaregiverSettings(userDefaults: userDefaults)
         self.accountServiceManager = Self.createAccountServiceManager(settings: settings)

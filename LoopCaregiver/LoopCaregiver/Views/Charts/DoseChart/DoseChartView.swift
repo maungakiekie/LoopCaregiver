@@ -61,6 +61,7 @@ struct DoseChartView: UIViewRepresentable {
         })
     }
 
+    // TODO: This is probably what needs to work with DateRangeAndValue and OffsetCalculator.
     func basalDoseEntries() -> [DoseEntry] {
         let basalEntries = remoteDataSource.basalEntries
             .sorted(by: { $0.timestamp < $1.timestamp })

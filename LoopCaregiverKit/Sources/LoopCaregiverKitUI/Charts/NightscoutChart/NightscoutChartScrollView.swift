@@ -39,7 +39,6 @@ public struct NightscoutChartScrollView: View {
     }
 
     public var body: some View {
-        let _ = Self._printChanges()
         GeometryReader { containerGeometry in
             ZoomableScrollView { zoomScrollViewProxy in
                 NightscoutChartView(viewModel: graphViewModel)
@@ -124,7 +123,7 @@ public struct NightscoutChartScrollView: View {
     
     var treatmentData: CaregiverTreatmentData {
         CaregiverTreatmentData(
-            glucoseDisplayUnits: settings.glucoseDisplayUnits,
+            glucoseDisplayUnits: settings.glucosePreference.unit,
             glucoseSamples: remoteDataSource.glucoseSamples,
             predictedGlucose: remoteDataSource.predictedGlucose,
             bolusEntries: remoteDataSource.bolusEntries,

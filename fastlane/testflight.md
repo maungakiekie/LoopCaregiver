@@ -1,23 +1,37 @@
 # Using GitHub Actions + FastLane to deploy to TestFlight
 
-These instructions allow you to build LoopCaregiver without having access to a Mac.
+These instructions allow you to build your app without having access to a Mac.
 
-* You can install LoopCaregiver on phones via TestFlight that are not connected to your computer
+* You can install your app on phones using TestFlight that are not connected to your computer
 * You can send builds and updates to those you care for
-* You can install LoopCaregiver on your phone using only the TestFlight app if a phone was lost or the app is accidentally deleted
+* You can install your app on your phone using only the TestFlight app if a phone was lost or the app is accidentally deleted
 * You do not need to worry about specific Xcode/Mac versions for a given iOS
+
+## **Automatic Builds**
+>
+> The browser build **defaults to** automatically updating and building a new version of LoopCaregiver according to this schedule:
+> - automatically checks for updates weekly and if updates are found, it will build a new version of the app
+>   - even when there are no updates, it builds on the second Sunday of the month
+> - with each scheduled weekly run, a successful build log appears - if the time is very short, it did not need to build - only the long actions (>20 minutes) built a new app
+>
+> The [**Optional**](#optional) section provides instructions to modify the default behavior if desired.
+
+> **Repeat Builders**
+> - to enable automatic build, your `GH_PAT` token must have `workflow` scope
+> - if you previously configured your `GH_PAT` without that scope, see [`GH_PAT` `workflow` permission](#gh_pat-workflow-permission)
 
 ## Introduction
 
-The setup steps are somewhat involved, but nearly all are one time steps. Subsequent builds are trivial. Your app must be updated once every 90 days, but it's a simple click to make a new build and can be done from anywhere. The 90-day update is a TestFlight requirement.
+The setup steps are somewhat involved, but nearly all are one time steps. Subsequent builds are trivial. Your app must be updated once every 90 days, but it's a simple click to make a new build and can be done from anywhere. The 90-day update is a TestFlight requirement, and with this version of LoopCaregiver, the build process (once you've successfully built once) is automated to update and build at least once a month.
 
-There are more detailed instructions in LoopDocs for using GitHub for Browser Builds of LoopCaregiver and Loop, including troubleshooting and build errors. Please refer to:
+There are more detailed instructions in LoopDocs for using GitHub for Browser Builds, including troubleshooting and build errors. Please refer to:
 
-* [LoopDocs: GitHub Other Apps](https://loopkit.github.io/loopdocs/gh-actions/gh-other-apps/)
-* [LoopDocs: GitHub Overview](https://loopkit.github.io/loopdocs/gh-actions/gh-overview/)
-* [LoopDocs: GitHub Errors](https://loopkit.github.io/loopdocs/gh-actions/gh-errors/)
+* [LoopDocs: Browser Overview](https://loopkit.github.io/loopdocs/browser/bb-overview/)
+* [LoopDocs: Errors with Browser](https://loopkit.github.io/loopdocs/browser/bb-errors/)
 
-Note that installing with TestFlight, (in the US), requires the Apple ID account holder to be 13 years or older. For younger Loopers, an adult must log into Media & Purchase on the child's phone to install LoopCaregiver. More details on this can be found in [LoopDocs](https://loopkit.github.io/loopdocs/gh-actions/gh-deploy/#install-testflight-loop-for-child).
+Note that installing with TestFlight, (in the US), requires the Apple ID account holder to be 13 years or older. For younger Loopers, an adult must log into Media & Purchase on the child's phone to install Loop. More details on this can be found in [LoopDocs](https://loopkit.github.io/loopdocs/browser/phone-install/#testflight-for-a-child).
+
+If you build multiple apps, it is strongly recommended that you configure a free *GitHub* organization and do all your building in the organization. This means you enter items one time for the organization (6 SECRETS required to build and 1 VARIABLE required to automatically update your certificates annually). Otherwise, those 6 SECRETS must be entered for every repository. Please refer to [LoopDocs: Create a *GitHub* Organization](https://loopkit.github.io/loopdocs/browser/secrets/#create-a-free-github-organization).
 
 ## Prerequisites
 
@@ -27,12 +41,14 @@ Note that installing with TestFlight, (in the US), requires the Apple ID account
 
 ## Save 6 Secrets
 
-You require 6 Secrets (alphanumeric items) to use the GitHub build method, and if you use the GitHub method to build more than LoopCaregiver, e.g., Loop or Loop Follow, you will use the same 6 Secrets for each app you build with this method. Each secret is identified below by `ALL_CAPITAL_LETTER_NAMES`.
+You require 6 Secrets (alphanumeric items) to use the GitHub build method, and if you use the GitHub method to build more than LoopCaregiver, e.g., Loop or LoopFollow, you will use the same 6 Secrets for each app you build with this method. Each secret is identified below by `ALL_CAPITAL_LETTER_NAMES`.
 
 * Four Secrets are from your Apple Account
 * Two Secrets are from your GitHub account
 * Be sure to save the 6 Secrets in a text file using a text editor
     - Do **NOT** use a smart editor, which might auto-correct and change case, because these Secrets are case sensitive
+
+Refer to [LoopDocs: Make a Secrets Reference File](https://loopkit.github.io/loopdocs/browser/intro-summary/#make-a-secrets-reference-file) for a handy template to use when saving your Secrets.
 
 ## Generate App Store Connect API Key
 
@@ -47,7 +63,9 @@ This step is common for all GitHub Browser Builds; do this step only once. You w
 
 ## Create GitHub Personal Access Token
 
-This step is common for all GitHub Browser Builds; do this step only once. This is the first of two GitHub secrets needed for your build.
+If you have previously built another app using the "browser build" method, you use the same personal access token (`GH_PAT`), so skip this step. If you use a free GitHub organization to build, you still use the same personal access token. This is created using your personal GitHub username.
+
+Log into your GitHub account to create a personal access token; this is one of two GitHub secrets needed for your build.
 
 1. Create a [new personal access token](https://github.com/settings/tokens/new):
     * Enter a name for your token, use "FastLane Access Token".
@@ -58,21 +76,30 @@ This step is common for all GitHub Browser Builds; do this step only once. This 
 
 ## Make up a Password
 
-This step is common for all GitHub Browser Builds; do this step only once. This is the second of two GitHub secrets needed for your build.
+This is the second one of two GitHub secrets needed for your build.
 
-The first time you build with the GitHub Browser Build method for any DIY app, you will make up a password and record it as `MATCH_PASSWORD`. Note, if you later lose `MATCH_PASSWORD`, you will need to delete the Match-Secrets repository so that a new one can be created for you.
+The first time you build with the GitHub Browser Build method for any DIY app, you will make up a password and record it as `MATCH_PASSWORD`. Note, if you later lose `MATCH_PASSWORD`, you will need to delete and make a new Match-Secrets repository (next step).
+
+## GitHub Match-Secrets Repository
+
+A private Match-Secrets repository is automatically created under your GitHub username the first time you run a GitHub Action. Because it is a private repository - only you can see it. You will not take any direct actions with this repository; it needs to be there for GitHub to use as you progress through the steps.
 
 ## Setup GitHub LoopCaregiver Repository
 
-1. Fork https://github.com/LoopKit/LoopCaregiver into your account.
-1. In the forked LoopCaregiver repo, go to Settings -> Secrets and variables -> Actions.
-1. For each of the following secrets, tap on "New repository secret", then add the name of the secret, along with the value you recorded for it:
+1. Fork https://github.com/LoopKit/LoopCaregiver into your GitHub username (using your organization if you have one). If you already have a fork of LoopCaregiver in that username, you should not make another one. Do not rename the repository. You can continue to work with your existing fork, or delete that from GitHub and then fork again.
+1. If you are using an organization, do this step at the organization level, e.g., username-org. If you are not using an organization, do this step at the repository level, e.g., username/LoopCaregiver:
+    * Go to Settings -> Secrets and variables -> Actions and make sure the Secrets tab is open
+1. For each of the following secrets, tap on "New organization secret" or "New repository secret", then add the name of the secret, along with the value you recorded for it:
     * `TEAMID`
     * `FASTLANE_ISSUER_ID`
     * `FASTLANE_KEY_ID`
     * `FASTLANE_KEY`
     * `GH_PAT`
     * `MATCH_PASSWORD`
+1. If you are using an organization, do this step at the organization level, e.g., username-org. If you are not using an organization, do this step at the repository level, e.g., username/LoopCaregiver:
+    * Go to Settings -> Secrets and variables -> Actions and make sure the Variables tab is open
+1. Tap on "Create new organization variable" or "Create new repository variable", then add the name below and enter the value true. Unlike secrets, variables are visible and can be edited.
+    * `ENABLE_NUKE_CERTS`
 
 ## Validate repository secrets
 
@@ -104,15 +131,15 @@ Note 1 - If you previously built with Xcode, the `Names` listed below may be dif
 
 Note 2 - Depending on your build history, you may find some of the Identifiers are already configured - and you are just verifying the status; but in other cases, you will need to configure the Identifiers.
 
-1. Go to [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list) on the apple developer site.
-1. For each of the following identifier names: 
+1. Go to [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list) on the Apple Developer site.
+1. For each of the following identifier names:
     * LoopCaregiver
     * LoopCaregiverWidgetExtension
     * LoopCaregiverIntentExtension
     * LoopCaregiverWatch
     * LoopCaregiverWatchWidgetExtension
 1. Click on the identifier's name.
-1. On the "App Groups" capabilies, click on the "Configure" button.
+1. On the "App Groups" capabilities, click on the "Configure" button.
 1. Select the "LoopCaregiver App Group"
 1. Click "Continue".
 1. Click "Save".
@@ -146,17 +173,16 @@ You do not need to fill out the next form. That is for submitting to the app sto
 
 ## Create Building Certificates
 
-1. Go back to the "Actions" tab of your LoopCaregiver repository in GitHub.
-1. On the left side, select "3. Create Certificates".
-1. On the right side, click "Run Workflow", and tap the green `Run workflow` button.
-1. Wait, and within a minute or two you should see a green checkmark indicating the workflow succeeded.
+This step is no longer required. The Build LoopCaregiver function now takes care of this for you. It does not hurt to run it but is not needed.
+
+Once a year, you will get an email from Apple indicating your certificate will expire in 30 days. You can ignore that email. When it does expire, the next time an automatic or manual build happens, the expired certificate information will be removed (nuked) from your Match-Secrets repository and a new one created. This should happen without you needing to take any action.
 
 ## Build LoopCaregiver
 
 1. Click on the "Actions" tab of your LoopCaregiver repository.
 1. On the left side, select "4. Build LoopCaregiver".
 1. On the right side, click "Run Workflow", and tap the green `Run workflow` button.
-1. You have some time now. Go enjoy a coffee. The build should take about 10-20 minutes.
+1. You have some time now. Go enjoy a coffee. The build should take about 4 to 10 minutes.
 1. Your app should eventually appear on [App Store Connect](https://appstoreconnect.apple.com/apps).
 1. For each phone/person you would like to support LoopCaregiver on:
     * Add them in [Users and Access](https://appstoreconnect.apple.com/access/users) on App Store Connect.
@@ -164,109 +190,84 @@ You do not need to fill out the next form. That is for submitting to the app sto
 
 ## TestFlight and Deployment Details
 
-Please refer to [LoopDocs: Set Up Users](https://loopkit.github.io/loopdocs/gh-actions/gh-first-time/#set-up-users-and-access-testflight) and [LoopDocs: Deploy](https://loopkit.github.io/loopdocs/gh-actions/gh-deploy/)
+Please refer to [LoopDocs: TestFlight Overview](https://loopkit.github.io/loopdocs/browser/tf-users) and [LoopDocs: Install on Phone](https://loopkit.github.io/loopdocs/browser/phone-install/)
 
-## App Group Update
+## Automatic Build FAQs
 
-The Caregiver app was updated in December 2023 to require App Groups for iOS widget support. You need to take some extra steps the first time you build since the update. 
+## OPTIONAL
 
-Select each of the 5 links below and complete each step, even if you did these prior to 12/8/2023. 
+What if you don't want to allow automated updates of the repository or automatic builds?
 
-1. [Add Identifiers for LoopCaregiver App](#add-identifiers-for-loopcaregiver-app)
-1. [Create App Group](#create-app-group)
-1. [Add App Group to Bundle Identifiers](#add-app-group-to-bundle-identifiers)
-1. [Create Building Certificates](#create-building-certificates)
-1. [Build LoopCaregiver](#build-loopcaregiver)
+You can affect the default behavior:
 
-## Build Errors
+1. [`GH_PAT` `workflow` permission](#gh_pat-workflow-permission)
+1. [Modify scheduled building and synchronization](#modify-scheduled-building-and-synchronization)
 
-### App Group Capability Missing
+### `GH_PAT` `workflow` permission
 
-This error means the app identifiers in the Apple Developer portal are missing the app group capability. To resolve:
+To enable the scheduled build and sync, the `GH_PAT` must hold the `workflow` permission scopes. This permission serves as the enabler for automatic and scheduled builds with browser build. To verify your token holds this permission, follow these steps.
 
-1. Perform the [App Group Update](#app-group-update) steps.
-1. Pay close attention to the "Add App Group to Bundle Identifiers" as this error suggests at least one of your app identifiers is missing the LoopCaregiver App Group.
+1. Go to your [FastLane Access Token](https://github.com/settings/tokens)
+2. It should say `repo`, `workflow` next to the `FastLane Access Token` link
+3. If it does not, click on the link to open the token detail view
+4. Click to check the `workflow` box. You will see that the checked boxes for the `repo` scope become disabled (change color to dark gray and are not clickable)
+5. Scroll all the way down to and click the green `Update token` button
+6. Your token now holds both required permissions
 
-### Match Repository Missing
+If you choose not to have automatic building enabled, be sure the `GH_PAT` has `repo` scope or you won't be able to manually build.
 
-This error indicates the Match-Secrets repository is missing or was deleted. To resolve: 
+### Modify scheduled building and synchronization
 
-1. [Validate repository secrets](#validate-repository-secrets). This will create the Match-Secrets repository.
-1. [Add Identifiers for LoopCaregiver App](#add-identifiers-for-loopcaregiver-app)
-1. [Create Building Certificates](#create-building-certificates)
-1. [Build LoopCaregiver](#build-loopcaregiver)
+You can modify the automation by creating and using some variables.
 
-### Credentials Invalid
+To configure the automated build more granularly involves creating up to two environment variables: `SCHEDULED_BUILD` and/or `SCHEDULED_SYNC`. See [How to configure a variable](#how-to-configure-a-variable). 
 
-This is often a temporary issue that can be resolved by:
+Note that the weekly build actions will continue, but the actions are modified if one or more of these variables is set to false. **A successful Action Log will still appear, even if no automatic activity happens**.
 
-* Run [Create Building Certificates](#create-building-certificates) again.
+* If you want to manually decide when to update your repository to the latest commit, but you want the monthly builds to continue: set `SCHEDULED_SYNC` to false and either do not create `SCHEDULED_BUILD` or set it to true
+* If you want to only build when an update has been found: set `SCHEDULED_BUILD` to false and either do not create `SCHEDULED_SYNC` or set it to true
+    * **Warning**: if no updates to your default branch are detected within 90 days, your previous TestFlight build may expire requiring a manual build
 
-If that fails, there is likely an issue with one of your saved secrets. Check that you set the following secrets correctly. See [Setup GitHub LoopCaregiver Repository](#Setup-GitHub-LoopCaregiver-Repository).
+|`SCHEDULED_SYNC`|`SCHEDULED_BUILD`|Automatic Actions|
+|---|---|---|
+| `true` (or NA) | `true` (or NA) | weekly update check (auto update/build), monthly build with auto update|
+| `true` (or NA) | `false` | weekly update check with auto update, only builds if update detected|
+| `false` | `true` (or NA) | monthly build, no auto update |
+| `false` | `false` | no automatic activity|
 
-* FASTLANE_ISSUER_ID
-* FASTLANE_KEY_ID
-* FASTLANE_KEY
-* GH_PAT
+### How to configure a variable
 
-### Match-Secrets Repository Clone Issue
+1. Go to the "Settings" tab of your repository (to modify a single repository schedule) or your organization to affect all repositories.
+2. Click on `Secrets and Variables`.
+3. Click on `Actions`
+4. You will now see a page titled *Actions secrets and variables*. Click on the `Variables` tab
+5. To disable ONLY scheduled building, do the following:
+    - Click on the green `New repository variable` button (upper right)
+    - Type `SCHEDULED_BUILD` in the "Name" field
+    - Type `false` in the "Value" field
+    - Click the green `Add variable` button to save.
+7. To disable scheduled syncing, add a variable:
+    - Click on the green `New repository variable` button (upper right)
+    - - Type `SCHEDULED_SYNC` in the "Name" field
+    - Type `false` in the "Value" field
+    - Click the green `Add variable` button to save
+  
+Your build will run on the following conditions:
+- Default behaviour:
+    - Run weekly every Sunday
+        - If updates are detected, it will update your repository and build
+        - If it is the second Sunday of the month, it will build even when no changes are detected
+- If you disable any automation (both variables set to `false`), no updates or building happens when the build action runs
+- If you disabled just scheduled synchronization (`SCHEDULED_SYNC` set to`false`), it will still build once a month, but no update will happen
+- If you disabled just scheduled build (`SCHEDULED_BUILD` set to`false`), it will run once weekly, to check for changes; if there are changes, it will update and build
 
-This is often a temporary issue that can be resolved by:
+## What if I build using more than one GitHub username
 
-* Run [Create Building Certificates](#create-building-certificates) again.
+This is not typical. But if you do use more than one GitHub username, follow these steps at the time of the annual certificate renewal.
 
-If that fails, there is likely an issue with one of your saved secrets. Try these steps:
+1. After the certificates were removed (nuked) from username1 Match-Secrets storage, you need to switch to username2
+1. Add the variable FORCE_NUKE_CERTS=true to the username2/LoopCaregiver repository
+1. Run the action Create Certificate (or Build, but Create is faster)
+1. Immediately set FORCE_NUKE_CERTS=false or delete the variable
 
-1. Check your Github Personal Access Token has the correct permissions. See [Create GitHub Personal Access Token](create-github-personal-access-token)
-1. Check that the Github Personal Access Token (GH_PAT) was stored as a secret. See the secret setup steps in [Setup GitHub LoopCaregiver Repository](setup-gitHub-loopcaregiver-repository)
-
-### Missing Bundle Identifier
-
-This error indicates you are missing some required bundle identifier(s).
-
-In December 2023, existing Caregiver builds require a 1 time update. Perform the [App Group Update](#app-group-update) steps if not completed yet.
-
-If those steps were already completed, instead try the following:
-
-1. [Add Identifiers for LoopCaregiver App](#add-identifiers-for-loopcaregiver-app)
-1. [Create Building Certificates](#create-building-certificates)
-
-### Bundle Identifier Missing App Group
-
-This error indicates one or more of your App Identifiers are not assigned the "LoopCaregiver App Group". To resolve:
-
-1. Create the Caregiver app group if not previously done. Follow the steps [Create App Group](#create-app-group).
-1. Add the app group for each bundle identifier. Follow the steps in [Add App Group to Bundle Identifiers](#Add-App-Group-to-Bundle-Identifiers)
-1. [Create Building Certificates](#create-building-certificates)
-1. [Build LoopCaregiver](#build-loopcaregiver)
-
-### Certificate is Missing
-
-This error indicates your Apple Certificate is missing. To resolve:
-
-1. Delete the Github Match-Secrets repository.
-1. [Validate repository secrets](#validate-repository-secrets). This will create the Match-Secrets repository.
-1. [Add Identifiers for LoopCaregiver App](#add-identifiers-for-loopcaregiver-app)
-1. [Create Building Certificates](#create-building-certificates)
-1. [Build LoopCaregiver](#build-loopcaregiver)
-
-### Maximum Certificates Reached
-
-This error indicates you have too many certificates on the Apple developer portal. This sometimes occurs after deleting and recreating your Match Secrets repository. To resolve:
-
-1. Login to the Apple developer portal. 
-1. Go to the "Certificates" page. 
-1. Delete all "Distribution" certificates that contain "API Key" in the "Created By" column.
-
-### Provisioning Profiles Invalid
-
-This error indicates a provisioning profile(s) is invalid. To resolve:
-
-1. [Add Identifiers for LoopCaregiver App](#add-identifiers-for-loopcaregiver-app)
-1. [Create Building Certificates](#create-building-certificates)
-
-### Missing Signing Certificates
-
-The error indicates a provisioning profile is missing its signing certificate. To resolve: 
-
-* [Create Building Certificates](#create-building-certificates)
+Now certificates for username2 have been cleared out of Match-Secrets storage for username2. Building can proceed as usual for both username1 and username2.

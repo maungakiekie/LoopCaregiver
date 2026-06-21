@@ -57,11 +57,11 @@ struct WatchSettingsView: View {
         }
         .navigationTitle("Settings")
         .onAppear {
-            self.glucosePreference = settings.glucoseUnitPreference
+            self.glucosePreference = settings.glucosePreference
         }
         .onChange(of: glucosePreference, {
-            if settings.glucoseUnitPreference != glucosePreference {
-                settings.saveGlucoseUnitPreference(glucosePreference)
+            if settings.glucosePreference != glucosePreference {
+                settings.glucosePreference = glucosePreference
                 reloadWidget()
             }
         })

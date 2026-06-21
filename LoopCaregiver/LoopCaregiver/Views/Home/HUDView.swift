@@ -31,7 +31,7 @@ struct HUDView: View {
     var body: some View {
         VStack {
             HStack(alignment: .center) {
-                CurrentGlucoseComboView(glucoseSample: nightscoutDataSource.currentGlucoseSample, lastGlucoseChange: lastGlucoseChange, displayUnits: settings.glucoseDisplayUnits)
+                CurrentGlucoseComboView(glucoseSample: nightscoutDataSource.currentGlucoseSample, lastGlucoseChange: lastGlucoseChange, displayUnits: settings.glucosePreference.unit)
                 Spacer()
                 HStack {
                     if nightscoutDataSource.updating {
@@ -57,7 +57,7 @@ struct HUDView: View {
     
     var lastGlucoseChange: Double? {
         let samples = nightscoutDataSource.glucoseSamples
-        return samples.getLastGlucoseChange(displayUnits: settings.glucoseDisplayUnits)
+        return samples.getLastGlucoseChange(displayUnits: settings.glucosePreference.unit)
     }
     
     var pickerButton: some View {
@@ -139,7 +139,7 @@ class HUDViewModel: ObservableObject {
         self.selectedLooper = selectedLooper
         self.accountService = accountService
         self.settings = settings
-        self.glucoseDisplayUnits = self.settings.glucoseDisplayUnits
+        self.glucoseDisplayUnits = self.settings.glucosePreference.unit
         
         // TODO: This is a hack to support: accountService.selectedLooper = looper
         // Move this logic to accountService.
@@ -157,8 +157,8 @@ class HUDViewModel: ObservableObject {
     
     @objc
     func defaultsChanged(notication: Notification) {
-        if self.glucoseDisplayUnits != settings.glucoseDisplayUnits {
-            self.glucoseDisplayUnits = settings.glucoseDisplayUnits
+        if self.glucoseDisplayUnits != settings.glucosePreference.unit {
+            self.glucoseDisplayUnits = settings.glucosePreference.unit
         }
     }
 }
